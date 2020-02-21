@@ -809,6 +809,18 @@ typedef union SDL_HapticEffect
     SDL_HapticCustom custom;        /**< Custom effect. */
 } SDL_HapticEffect;
 
+// [IGE]: Add haptic
+typedef enum {
+	Selection,
+	Success,
+	Warning,
+	Failure,
+	LightImpact,
+	MediumImpact,
+	HeavyImpact,
+	None
+} HapticTypes;
+// [/IGE]
 
 /* Function prototypes */
 /**
@@ -1226,6 +1238,32 @@ extern DECLSPEC int SDLCALL SDL_HapticRumblePlay(SDL_Haptic * haptic, float stre
  *  \sa SDL_HapticRumblePlay
  */
 extern DECLSPEC int SDLCALL SDL_HapticRumbleStop(SDL_Haptic * haptic);
+
+// [IGE]: Add haptic
+/**
+ *  \<summary>
+ *  \This class will allow you to trigger vibrations and haptic feedbacks on both mobile(iOS and Android),
+ *  \or on each specific platform independently.
+ *
+ *  \For haptics patterns, it takes inspiration from the iOS guidelines :
+ *  \https://developer.apple.com/ios/human-interface-guidelines/user-interaction/feedback
+ *  \Of course the iOS haptics are called directly as they are, and they're crudely reproduced on Android.
+ *  \Feel free to tweak the patterns or create your own.
+ *
+ *  \Here's a brief overview of the patterns :
+ *
+ *  \- selection : light
+ *  \- success : light / heavy
+ *  \- warning : heavy / medium
+ *  \- failure : medium / medium / heavy / light
+ *  \- light
+ *  \- medium
+ *  \- heavy
+ *
+ *  \</summary>
+ */
+extern DECLSPEC int SDLCALL SDL_HapticPlay(SDL_Haptic* haptic, HapticTypes type, long* pattern, int* amplitudes, int size, int repeat);
+// [/IGE]
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus

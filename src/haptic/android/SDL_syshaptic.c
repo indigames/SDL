@@ -296,6 +296,9 @@ SDL_SYS_HapticUnpause(SDL_Haptic * haptic)
 int
 SDL_SYS_HapticStopAll(SDL_Haptic * haptic)
 {
+// [IGE]: Add haptic
+    Android_JNI_HapticStop (((SDL_hapticlist_item *)haptic->hwdata)->device_id);
+// [/IGE]
     return 0;
 }
 
@@ -362,6 +365,17 @@ Android_RemoveHaptic(int device_id)
     return -1;
 }
 
+// [IGE]: Add haptic
+/*
+ * Play the haptic.
+ */
+int
+SDL_SYS_HapticPlay(SDL_Haptic* haptic, HapticTypes type, long* pattern, int* amplitudes, int size, int repeat)
+{
+    Android_JNI_HapticPlay (((SDL_hapticlist_item *)haptic->hwdata)->device_id, pattern, amplitudes, size, repeat);
+    return 0;
+}
+// [/IGE]
 
 #endif /* SDL_HAPTIC_ANDROID */
 

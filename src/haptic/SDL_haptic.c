@@ -853,4 +853,25 @@ SDL_HapticRumbleStop(SDL_Haptic * haptic)
     return SDL_HapticStopEffect(haptic, haptic->rumble_id);
 }
 
+// [IGE]: Add haptic
+/*
+ * Play the haptic on the mobile device.
+ */
+int
+SDL_HapticPlay(SDL_Haptic* haptic, HapticTypes type, long* pattern, int* amplitudes, int size, int repeat)
+{
+	if (!ValidHaptic(haptic)) {
+		return -1;
+	}
+
+	/* play the haptic */
+	if (SDL_SYS_HapticPlay(haptic, type, pattern, amplitudes, size, repeat)
+		< 0) {
+		return -1;
+	}
+
+	return 0;
+}
+// [/IGE]
+
 /* vi: set ts=4 sw=4 expandtab: */

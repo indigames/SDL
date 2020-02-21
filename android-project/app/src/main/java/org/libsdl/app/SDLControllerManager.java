@@ -78,6 +78,15 @@ public class SDLControllerManager
     public static void hapticRun(int device_id, float intensity, int length) {
         mHapticHandler.run(device_id, intensity, length);
     }
+    
+	// [IGE]: Add haptic
+    /**
+     * This method is called by SDL using JNI.
+     */
+    public static void hapticPlay(int device_id, long[] pattern, int[] amplitudes, int repeat) {
+        mHapticHandler.play(device_id, pattern, amplitudes, repeat);
+    }
+	// [/IGE]
 
     /**
      * This method is called by SDL using JNI.
@@ -419,7 +428,11 @@ class SDLHapticHandler_API26 extends SDLHapticHandler {
                 return;
             }
             try {
-                haptic.vib.vibrate(VibrationEffect.createOneShot(length, vibeValue));
+				// [IGE]: Fix build failed
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    haptic.vib.vibrate(VibrationEffect.createOneShot(length, vibeValue));
+                }
+				// [/IGE]
             }
             catch (Exception e) {
                 // Fall back to the generic method, which uses DEFAULT_AMPLITUDE, but works even if
@@ -428,6 +441,26 @@ class SDLHapticHandler_API26 extends SDLHapticHandler {
             }
         }
     }
+    
+	// [IGE]: Add haptic
+    @Override
+    public void play(int device_id, long[] pattern, int[] amplitudes, int repeat) {
+        SDLHaptic haptic = getHaptic(device_id);
+        if (haptic != null) {
+            Log.d("SDL", "Play the haptic: pattern " + pattern + " amplitudes " + amplitudes);
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    haptic.vib.vibrate(VibrationEffect.createWaveform(pattern, amplitudes, repeat));
+                }
+            }
+            catch (Exception e) {
+                // Fall back to the generic method, which uses DEFAULT_AMPLITUDE, but works even if
+                // something went horribly wrong with the Android 8.0 APIs.
+                haptic.vib.vibrate(pattern, repeat);
+            }
+        }
+    }
+	// [/IGE]
 }
 
 class SDLHapticHandler {
@@ -450,6 +483,15 @@ class SDLHapticHandler {
             haptic.vib.vibrate(length);
         }
     }
+    
+	// [IGE]: Add haptic
+    public void play(int device_id, long[] pattern, int[] amplitudes, int repeat) {
+        SDLHaptic haptic = getHaptic(device_id);
+        if (haptic != null) {
+            haptic.vib.vibrate(pattern, repeat);
+        }
+    }
+	// [/IGE]
 
     public void stop(int device_id) {
         SDLHaptic haptic = getHaptic(device_id);
@@ -752,10 +794,18 @@ class SDLGenericMotionListener_API26 extends SDLGenericMotionListener_API24 {
     public boolean setRelativeMouseEnabled(boolean enabled) {
         if (!SDLActivity.isDeXMode() || (Build.VERSION.SDK_INT >= 27)) {
             if (enabled) {
-                SDLActivity.getContentView().requestPointerCapture();
+				// [IGE]: Fix warning
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    SDLActivity.getContentView().requestPointerCapture();
+                }
+				// [/IGE]
             }
             else {
-                SDLActivity.getContentView().releasePointerCapture();
+                // [IGE]: Fix warning
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    SDLActivity.getContentView().releasePointerCapture();
+                }
+                // [/IGE]
             }
             mRelativeModeEnabled = enabled;
             return true;
@@ -770,7 +820,11 @@ class SDLGenericMotionListener_API26 extends SDLGenericMotionListener_API24 {
     public void reclaimRelativeMouseModeIfNeeded()
     {
         if (mRelativeModeEnabled && !SDLActivity.isDeXMode()) {
-            SDLActivity.getContentView().requestPointerCapture();
+            // [IGE]: Fix warning
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                SDLActivity.getContentView().requestPointerCapture();
+            }
+            // [/IGE]
         }
     }
 

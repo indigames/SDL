@@ -78,9 +78,12 @@ else()
   set(PROCESSOR_ARCH "x86")
 endif()
 set(LIBNAME SDL2)
+
+# [IGE]: Change defaut to STATIC
 if(NOT LIBTYPE)
-  set(LIBTYPE SHARED)
+  set(LIBTYPE STATIC)
 endif()
+# [/IGE]
 
 # Get the platform
 if(WIN32)
@@ -944,6 +947,13 @@ if(ANDROID)
     file(GLOB ANDROID_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/android/*.c)
     set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_AUDIO_SOURCES})
     set(HAVE_SDL_AUDIO TRUE)
+    
+    # [IGE]: Enable OpenSL Driver
+    set(SDL_AUDIO_DRIVER_OPENSLES 1)
+    file(GLOB ANDROID_AUDIO_OPENSLES_SOURCES ${SDL2_SOURCE_DIR}/src/audio/openslES/*.c)
+    set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_AUDIO_OPENSLES_SOURCES})
+    set(HAVE_SDL_AUDIO TRUE)
+    # [/IGE]
   endif()
   if(SDL_FILESYSTEM)
     set(SDL_FILESYSTEM_ANDROID 1)
@@ -1422,7 +1432,9 @@ elseif(WINDOWS)
   endif()
 
   # Libraries for Win32 native and MinGW
-  list(APPEND EXTRA_LIBS user32 gdi32 winmm imm32 ole32 oleaut32 version uuid advapi32 setupapi shell32)
+  # [IGE]: Add vcruntime for x64 compiler error
+  list(APPEND EXTRA_LIBS user32 gdi32 winmm imm32 ole32 oleaut32 version uuid advapi32 setupapi shell32 vcruntime)
+  # [/IGE]
 
   # TODO: in configure.ac the check for timers is set on
   # cygwin | mingw32* - does this include mingw32CE?
@@ -1518,7 +1530,7 @@ elseif(APPLE)
   # !!! FIXME: we need Carbon for some very old API calls in
   # !!! FIXME:  src/video/cocoa/SDL_cocoakeyboard.c, but we should figure out
   # !!! FIXME:  how to dump those.
-  if(DARWIN OR MACOSX)
+  if((DARWIN OR MACOSX) AND NOT IOS) # [IGE]: NOT IOS
     set(SDL_FRAMEWORK_COCOA 1)
     set(SDL_FRAMEWORK_CARBON 1)
   endif()
@@ -1579,6 +1591,11 @@ elseif(APPLE)
     if (IOS OR TVOS)
       file(GLOB HAPTIC_SOURCES ${SDL2_SOURCE_DIR}/src/haptic/dummy/*.c)
       set(SDL_HAPTIC_DUMMY 1)
+      
+      # [IGE]: Enable IOS Haptic implementation
+      file(GLOB HAPTIC_SOURCES ${SDL2_SOURCE_DIR}/src/haptic/ios/*.c ${SDL2_SOURCE_DIR}/src/haptic/ios/*.m)      
+      set(SDL_HAPTIC_IOS 1)
+      # [/IGE]
     else()
       file(GLOB HAPTIC_SOURCES ${SDL2_SOURCE_DIR}/src/haptic/darwin/*.c)
       set(SDL_HAPTIC_IOKIT 1)
@@ -2092,6 +2109,11 @@ endif()
 if(SDL_STATIC)
   set (BUILD_SHARED_LIBS FALSE)
   add_library(SDL2-static STATIC ${SOURCE_FILES})
+
+  # [IGE] Enable static lib flag
+  target_compile_definitions(SDL2-static PRIVATE SDL_STATIC_LIB)
+  # [/IGE]
+
   if (NOT SDL_SHARED OR NOT WIN32)
     set_target_properties(SDL2-static PROPERTIES OUTPUT_NAME "SDL2")
     # Note: Apparently, OUTPUT_NAME must really be unique; even when
