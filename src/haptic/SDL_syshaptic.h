@@ -203,6 +203,13 @@ extern int SDL_SYS_HapticUnpause(SDL_Haptic * haptic);
  */
 extern int SDL_SYS_HapticStopAll(SDL_Haptic * haptic);
 
+// [IGE]: add haptic
+/*
+ * Play the haptic on the mobile device.
+ */
+extern int SDL_SYS_HapticPlay(SDL_Haptic* haptic, HapticTypes type, long* pattern, int* amplitudes, int size, int repeat);
+// [/IGE]
+
 #endif /* SDL_syshaptic_h_ */
 
 /* vi: set ts=4 sw=4 expandtab: */

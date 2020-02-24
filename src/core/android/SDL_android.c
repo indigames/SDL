@@ -344,6 +344,10 @@ static jmethodID midPollHapticDevices;
 static jmethodID midHapticRun;
 static jmethodID midHapticStop;
 
+// [IGE]: add haptic
+static jmethodID midHapticPlay;
+// [/IGE]
+
 /* Accelerometer data storage */
 static SDL_DisplayOrientation displayOrientation;
 static float fLastAccelerometer[3];
@@ -492,14 +496,19 @@ register_methods(JNIEnv *env, const char *classname, JNINativeMethod *methods, i
 }
 
 /* Library init */
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
+// [IGE]: avoid link error
+// JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
+void SDL2_setJavaVM(JavaVM* vm)
+// [/IGE]
 {
     mJavaVM = vm;
     JNIEnv *env = NULL;
 
     if ((*mJavaVM)->GetEnv(mJavaVM, (void **)&env, JNI_VERSION_1_4) != JNI_OK) {
         __android_log_print(ANDROID_LOG_ERROR, "SDL", "Failed to get JNI Env");
-        return JNI_VERSION_1_4;
+		
+		// [IGE]: return void
+        return;
     }
 
     register_methods(env, "org/libsdl/app/SDLActivity", SDLActivity_tab, SDL_arraysize(SDLActivity_tab));
@@ -507,7 +516,8 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
     register_methods(env, "org/libsdl/app/SDLAudioManager", SDLAudioManager_tab, SDL_arraysize(SDLAudioManager_tab));
     register_methods(env, "org/libsdl/app/SDLControllerManager", SDLControllerManager_tab, SDL_arraysize(SDLControllerManager_tab));
 
-    return JNI_VERSION_1_4;
+	// [IGE]: return void
+    return;
 }
 
 void checkJNIReady(void)
@@ -680,10 +690,15 @@ JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeSetupJNI)(JNIEnv *env
                                 "hapticRun", "(IFI)V");
     midHapticStop = (*env)->GetStaticMethodID(env, mControllerManagerClass,
                                 "hapticStop", "(I)V");
-
-    if (!midPollInputDevices || !midPollHapticDevices || !midHapticRun || !midHapticStop) {
+	
+	// [IGE]: add haptic
+    midHapticPlay = (*env)->GetStaticMethodID(env, mControllerManagerClass,
+                                "hapticPlay", "(I[J[II)V");
+	
+    if (!midPollInputDevices || !midPollHapticDevices || !midHapticRun || !midHapticStop || !midHapticPlay) {
         __android_log_print(ANDROID_LOG_WARN, "SDL", "Missing some Java callbacks, do you have the latest version of SDLControllerManager.java?");
     }
+	// [/IGE]
 
     checkJNIReady();
 }
@@ -2369,6 +2384,34 @@ void Android_JNI_HapticRun(int device_id, float intensity, int length)
     JNIEnv *env = Android_JNI_GetEnv();
     (*env)->CallStaticVoidMethod(env, mControllerManagerClass, midHapticRun, device_id, intensity, length);
 }
+
+// [IGE]: add haptic
+void Android_JNI_HapticPlay(int device_id, long* patterns, int* amplitudes, int size, int repeat)
+{    
+    JNIEnv *env = Android_JNI_GetEnv();    
+
+    jintArray _amplitudes = (*env)->NewIntArray(env, size);
+    jlongArray _patterns = (*env)->NewLongArray(env, size);
+    if (_amplitudes && _patterns) {
+
+        jint fillAmplitudes[size];
+        jlong fillPatterns[size];
+        for (int i = 0; i < size; i++) {
+            fillAmplitudes[i] = amplitudes[i];
+            fillPatterns[i] = patterns[i];
+        }
+        (*env)->SetIntArrayRegion(env, _amplitudes, 0, size, fillAmplitudes);
+        (*env)->SetLongArrayRegion(env, _patterns, 0, size, fillPatterns);
+        
+        (*env)->CallStaticVoidMethod(env, mControllerManagerClass, midHapticPlay, device_id, _patterns, _amplitudes, repeat);
+        
+        (*env)->DeleteLocalRef(env, _amplitudes);
+        (*env)->DeleteLocalRef(env, _patterns);
+    } else {
+        SDL_OutOfMemory();
+    }
+}
+// [/IGE]
 
 void Android_JNI_HapticStop(int device_id)
 {
