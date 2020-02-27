@@ -5,6 +5,28 @@ endif()
 cmake_minimum_required(VERSION 2.8.11)
 project(SDL2 C CXX)
 
+# [IGE]: tweaks for platforms
+if(DEFINED ANDROID_PLATFORM)
+    set (ANDROID 1)
+    if(ANDROID_ABI STREQUAL "armeabi-v7a")
+        add_compile_options(-marm -march=armv7-a -mtune=cortex-a15 -mfpu=neon-fp16 -mfloat-abi=softfp)
+    elseif(ANDROID_ABI STREQUAL "x86")
+        add_compile_options(-march=atom -m32 -msse -msse2 -msse3 -mssse3 -mfpmath=sse -mstackrealign)
+    elseif(ANDROID_ABI STREQUAL "arm64-v8a")
+        add_compile_options(-march=armv8-a+simd+sve -mtune=cortex-a53 -D__ARM_NEON -D__ARM_NEON__)
+    elseif(ANDROID_ABI STREQUAL "x86_64")
+        add_compile_options(-march=atom -m64 -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mfpmath=sse)
+    endif()
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        add_compile_options(-Ofast)
+    else(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_compile_options(-Os)
+    endif()
+elseif(MSVC)
+  add_compile_options(/MP)
+endif()
+# [/IGE]
+
 # !!! FIXME: this should probably do "MACOSX_RPATH ON" as a target property
 # !!! FIXME:  for the SDL2 shared library (so you get an
 # !!! FIXME:  install_name ("soname") of "@rpath/libSDL-whatever.dylib"
