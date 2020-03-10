@@ -105,35 +105,37 @@ public class HIDDeviceManager {
         mContext = context;
 
         // Make sure we have the HIDAPI library loaded with the native functions
-        try {
-            SDL.loadLibrary("hidapi");
-        } catch (Throwable e) {
-            Log.w(TAG, "Couldn't load hidapi: " + e.toString());
+        // [IGE]: we use static lib, so should not load so
+        // try {
+            // SDL.loadLibrary("hidapi");
+        // } catch (Throwable e) {
+            // Log.w(TAG, "Couldn't load hidapi: " + e.toString());
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setCancelable(false);
-            builder.setTitle("SDL HIDAPI Error");
-            builder.setMessage("Please report the following error to the SDL maintainers: " + e.getMessage());
-            builder.setNegativeButton("Quit", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    try {
-                        // If our context is an activity, exit rather than crashing when we can't
-                        // call our native functions.
-                        Activity activity = (Activity)context;
+            // AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            // builder.setCancelable(false);
+            // builder.setTitle("SDL HIDAPI Error");
+            // builder.setMessage("Please report the following error to the SDL maintainers: " + e.getMessage());
+            // builder.setNegativeButton("Quit", new DialogInterface.OnClickListener() {
+                // @Override
+                // public void onClick(DialogInterface dialog, int which) {
+                    // try {
+                        // // If our context is an activity, exit rather than crashing when we can't
+                        // // call our native functions.
+                        // Activity activity = (Activity)context;
         
-                        activity.finish();
-                    }
-                    catch (ClassCastException cce) {
-                        // Context wasn't an activity, there's nothing we can do.  Give up and return.
-                    }
-                }
-            });
-            builder.show();
+                        // activity.finish();
+                    // }
+                    // catch (ClassCastException cce) {
+                        // // Context wasn't an activity, there's nothing we can do.  Give up and return.
+                    // }
+                // }
+            // });
+            // builder.show();
 
-            return;
-        }
-        
+            // return;
+        // }
+        // [/IGE]
+
         HIDDeviceRegisterCallback();
 
         mSharedPreferences = mContext.getSharedPreferences("hidapi", Context.MODE_PRIVATE);

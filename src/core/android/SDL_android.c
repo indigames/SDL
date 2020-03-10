@@ -506,8 +506,7 @@ void SDL2_setJavaVM(JavaVM* vm)
 
     if ((*mJavaVM)->GetEnv(mJavaVM, (void **)&env, JNI_VERSION_1_4) != JNI_OK) {
         __android_log_print(ANDROID_LOG_ERROR, "SDL", "Failed to get JNI Env");
-		
-		// [IGE]: return void
+        // [IGE]: return void
         return;
     }
 
@@ -516,7 +515,7 @@ void SDL2_setJavaVM(JavaVM* vm)
     register_methods(env, "org/libsdl/app/SDLAudioManager", SDLAudioManager_tab, SDL_arraysize(SDLAudioManager_tab));
     register_methods(env, "org/libsdl/app/SDLControllerManager", SDLControllerManager_tab, SDL_arraysize(SDLControllerManager_tab));
 
-	// [IGE]: return void
+    // [IGE]: return void
     return;
 }
 
@@ -690,15 +689,14 @@ JNIEXPORT void JNICALL SDL_JAVA_CONTROLLER_INTERFACE(nativeSetupJNI)(JNIEnv *env
                                 "hapticRun", "(IFI)V");
     midHapticStop = (*env)->GetStaticMethodID(env, mControllerManagerClass,
                                 "hapticStop", "(I)V");
-	
-	// [IGE]: add haptic
+
+    // [IGE]: add haptic
     midHapticPlay = (*env)->GetStaticMethodID(env, mControllerManagerClass,
                                 "hapticPlay", "(I[J[II)V");
-	
     if (!midPollInputDevices || !midPollHapticDevices || !midHapticRun || !midHapticStop || !midHapticPlay) {
         __android_log_print(ANDROID_LOG_WARN, "SDL", "Missing some Java callbacks, do you have the latest version of SDLControllerManager.java?");
     }
-	// [/IGE]
+    // [/IGE]
 
     checkJNIReady();
 }
@@ -2820,23 +2818,23 @@ SDL_bool Android_JNI_SetRelativeMouseEnabled(SDL_bool enabled)
 SDL_bool Android_JNI_RequestPermission(const char *permission)
 {
     JNIEnv *env = Android_JNI_GetEnv();
-	const int requestCode = 1;
+    const int requestCode = 1;
 
-	/* Wait for any pending request on another thread */
-	while (SDL_AtomicGet(&bPermissionRequestPending) == SDL_TRUE) {
-		SDL_Delay(10);
-	}
-	SDL_AtomicSet(&bPermissionRequestPending, SDL_TRUE);
+    /* Wait for any pending request on another thread */
+    while (SDL_AtomicGet(&bPermissionRequestPending) == SDL_TRUE) {
+        SDL_Delay(10);
+    }
+    SDL_AtomicSet(&bPermissionRequestPending, SDL_TRUE);
 
     jstring jpermission = (*env)->NewStringUTF(env, permission);
     (*env)->CallStaticVoidMethod(env, mActivityClass, midRequestPermission, jpermission, requestCode);
     (*env)->DeleteLocalRef(env, jpermission);
 
-	/* Wait for the request to complete */
-	while (SDL_AtomicGet(&bPermissionRequestPending) == SDL_TRUE) {
-		SDL_Delay(10);
-	}
-	return bPermissionRequestResult;
+    /* Wait for the request to complete */
+    while (SDL_AtomicGet(&bPermissionRequestPending) == SDL_TRUE) {
+        SDL_Delay(10);
+    }
+    return bPermissionRequestResult;
 }
 
 #endif /* __ANDROID__ */

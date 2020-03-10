@@ -137,13 +137,13 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
      */
     protected String[] getLibraries() {
         return new String[] {
-            "hidapi",
-            "SDL2",
+            // "hidapi",
+            // "SDL2",
             // "SDL2_image",
             // "SDL2_mixer",
             // "SDL2_net",
             // "SDL2_ttf",
-            "main"
+            // "main"
         };
     }
 
@@ -189,6 +189,12 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
         Log.v(TAG, "Model: " + Build.MODEL);
         Log.v(TAG, "onCreate()");
         super.onCreate(savedInstanceState);
+
+        // [IGE]: Enable performance mode
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            getWindow().setSustainedPerformanceMode(true);
+        }
+        // [/IGE]
 
         try {
             Thread.currentThread().setName("SDLActivity");
@@ -260,7 +266,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
 
         setContentView(mLayout);
 
-        setWindowStyle(false);
+        setWindowStyle(true); // [/IGE]: request fullscreen
 
         getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(this);
 

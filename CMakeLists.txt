@@ -2114,7 +2114,7 @@ endif()
 
 if(ANDROID)
   if(HAVE_HIDAPI)
-    add_library(hidapi SHARED ${SDL2_SOURCE_DIR}/src/hidapi/android/hid.cpp)
+    add_library(hidapi STATIC ${SDL2_SOURCE_DIR}/src/hidapi/android/hid.cpp) # [IGE]: use static hidapi
   endif()
 
   if(MSVC AND NOT LIBC)
