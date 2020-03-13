@@ -3,15 +3,17 @@ setlocal enabledelayedexpansion
 
 SET LIB_NAME=SDL
 
-SET BUILD_DEBUG=1
+SET BUILD_DEBUG=0
 
-echo COMPILING PC...
+echo COMPILING ...
 SET PROJECT_DIR=%~dp0..
 
 SET BUILD_DIR=%PROJECT_DIR%\build\android
 SET OUTPUT_DIR=%PROJECT_DIR%\igeLibs\%LIB_NAME%
-SET OUTPUT_LIBS_DEBUG=%OUTPUT_DIR%\libs\Debug\android
-SET OUTPUT_LIBS_RELEASE=%OUTPUT_DIR%\libs\Release\android
+SET OUTPUT_LIBS_DEBUG=%OUTPUT_DIR%\libs\android\Debug
+SET OUTPUT_LIBS_RELEASE=%OUTPUT_DIR%\libs\android
+
+SET CALL_DIR=%CD%
 
 rem Clone igeLibs, then set environment variable *IGE_LIBS* point to the cloned directory
 if not exist "%PROJECT_DIR%\igeLibs" (
@@ -213,5 +215,5 @@ goto ALL_DONE
     echo ERROR OCCURED DURING COMPILING
 
 :ALL_DONE
-    cd %PROJECT_DIR%
+    cd %CALL_DIR%
     echo COMPILING DONE!

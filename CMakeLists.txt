@@ -319,16 +319,18 @@ if (NOT DEFINED SDL_SHARED_ENABLED_BY_DEFAULT)
 
   set(SDL_SHARED_ENABLED_BY_DEFAULT OFF)
 
-  if (NOT DEFINED BUILD_SHARED_LIBS)
-    # No preference? Build both, just like the AC/AM configure
-    set(SDL_SHARED_ENABLED_BY_DEFAULT ON)
+  # [IGE]: not build shared lib
+  # if (NOT DEFINED BUILD_SHARED_LIBS)
+    # # No preference? Build both, just like the AC/AM configure
+    # set(SDL_SHARED_ENABLED_BY_DEFAULT ON)
 
-  elseif (BUILD_SHARED_LIBS)
-    # In this case, we assume the user wants a shared lib and don't build
-    # the static one
-    set(SDL_SHARED_ENABLED_BY_DEFAULT ON)
-    set(SDL_STATIC_ENABLED_BY_DEFAULT OFF)
-  endif()
+  # elseif (BUILD_SHARED_LIBS)
+    # # In this case, we assume the user wants a shared lib and don't build
+    # # the static one
+    # set(SDL_SHARED_ENABLED_BY_DEFAULT ON)
+    # set(SDL_STATIC_ENABLED_BY_DEFAULT OFF)
+  # endif()
+  # [/IGE]
 endif()
 
 set(SDL_SUBSYSTEMS
