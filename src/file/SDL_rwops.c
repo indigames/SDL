@@ -307,6 +307,14 @@ windows_file_close(SDL_RWops * context)
 
 #ifdef HAVE_STDIO_H
 
+// [IGE]: fix compile failed ios/macos
+#ifdef __APPLE__
+#  define off64_t off_t
+#  define fseeko64 fseeko
+#  define ftello64 ftello
+#endif
+// [/IGE]
+
 #ifdef HAVE_FOPEN64
 #define fopen   fopen64
 #endif

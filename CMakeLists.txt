@@ -289,7 +289,10 @@ if(CYGWIN)
   set(SDL_CFLAGS "${SDL_CFLAGS} -I/usr/include/mingw")
 endif()
 
-add_definitions(-DUSING_GENERATED_CONFIG_H)
+# [IGE]: use predefined config
+# add_definitions(-DUSING_GENERATED_CONFIG_H)
+# [/IGE]
+
 # General includes
 include_directories(${SDL2_BINARY_DIR}/include ${SDL2_SOURCE_DIR}/include)
 if(USE_GCC OR USE_CLANG)
@@ -1942,8 +1945,9 @@ endif()
 #   endif()
 # endif()
 
-configure_file("${SDL2_SOURCE_DIR}/include/SDL_config.h.cmake"
-  "${SDL2_BINARY_DIR}/include/SDL_config.h")
+# [IGE] use preconfigured file, no need to generate
+#  configure_file("${SDL2_SOURCE_DIR}/include/SDL_config.h.cmake" "${SDL2_BINARY_DIR}/include/SDL_config.h")
+# [/IGE]
 
 # Prepare the flags and remove duplicates
 if(EXTRA_LDFLAGS)
