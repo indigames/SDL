@@ -36,7 +36,7 @@ if [ $? -ne 0 ]; then
   exit $?
 fi
 
-[ ! -d "$OUTPUT_DIR/arm64" ] && mkdir -p $OUTPUT_DIR/x64
+[ ! -d "$OUTPUT_DIR/x64" ] && mkdir -p $OUTPUT_DIR/x64
 cp -R -f -p ./Release/*.a $OUTPUT_DIR/x64
 cp -R -f -p ./Release/*.so $OUTPUT_DIR/x64
 

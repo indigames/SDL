@@ -187,7 +187,7 @@ SDL_SYS_HapticStopAll(SDL_Haptic * haptic)
  * Play the haptic on the mobile device.
  */
 int
-SDL_HapticPlay(SDL_Haptic* haptic, HapticTypes type, long* pattern, int* amplitudes, int size, int repeat)
+SDL_HapticPlay_Internal(SDL_Haptic* haptic, HapticTypes type) // [IGE]: rename to avoid issuse
 {
 	if(HapticSupportedLevel() == 0)   // no haptic/ vibrate supported yet
     {
@@ -240,7 +240,7 @@ SDL_HapticPlay(SDL_Haptic* haptic, HapticTypes type, long* pattern, int* amplitu
 int
 SDL_SYS_HapticPlay(SDL_Haptic* haptic, HapticTypes type, long* pattern, int* amplitudes, int size, int repeat)
 {
-	return SDL_HapticPlay(haptic, type, pattern, amplitudes, size, repeat);
+	return SDL_HapticPlay_Internal(haptic, type); // [IGE]: rename to avoid issuse
 }
 
 #endif /* SDL_HAPTIC_IOS */

@@ -39,6 +39,22 @@
 #include "keyinfotable.h"
 #endif
 
+// [IGE]: get view context
+static UIView *g_parentView;
+static SDL_uikitviewcontroller *g_viewcontroller;
+
+typedef id WindowContext;
+WindowContext GetWindowContext()
+{
+    return g_parentView;
+}
+
+WindowContext GetViewControler()
+{
+    return g_viewcontroller;
+}
+// [/IGE]
+
 #if TARGET_OS_TV
 static void SDLCALL
 SDL_AppleTVControllerUIHintChanged(void *userdata, const char *name, const char *oldValue, const char *hint)
@@ -90,6 +106,10 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 {
     if (self = [super initWithNibName:nil bundle:nil]) {
         self.window = _window;
+
+// [IGE]: get view context
+        g_viewcontroller = self;
+// [/IGE]
 
 #if SDL_IPHONE_KEYBOARD
         [self initKeyboard];
@@ -325,6 +345,10 @@ SDL_HideHomeIndicatorHintChanged(void *userdata, const char *name, const char *o
 - (void)setView:(UIView *)view
 {
     [super setView:view];
+
+// [IGE]: get view context
+    g_parentView = view;
+// [/IGE]
 
     [view addSubview:textField];
 
