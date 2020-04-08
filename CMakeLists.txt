@@ -9,6 +9,7 @@ project(SDL2 C CXX)
 if(DEFINED ANDROID_PLATFORM)
     set (ANDROID 1)
     if(ANDROID_ABI STREQUAL "armeabi-v7a")
+        include_directories(${ANDROID_NDK}/sources/android/cpufeatures) # for cpufeatures
         add_compile_options(-marm -march=armv7-a -mtune=cortex-a15 -mfpu=neon-fp16 -mfloat-abi=softfp)
     elseif(ANDROID_ABI STREQUAL "x86")
         add_compile_options(-march=atom -m32 -msse -msse2 -msse3 -mssse3 -mfpmath=sse -mstackrealign)
