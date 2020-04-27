@@ -293,6 +293,53 @@ UIKit_UpdateWindowBorder(_THIS, SDL_Window * window)
     }
 
     /* Update the view's frame to account for the status bar change. */
+// [IGE]: safe-zone
+    if(window->flags & SDL_WINDOW_SAFEZONE)
+    {
+        NSString *path = [[NSBundle mainBundle] pathForResource: @"Info" ofType: @"plist"];
+        NSMutableDictionary *dictplist =[[NSMutableDictionary alloc] initWithContentsOfFile:path];
+        NSDictionary *safezoneDict = [dictplist objectForKey:@"Safezone"];
+
+        if(safezoneDict != nil)
+        {
+            UIEdgeInsets zone = viewcontroller.view.safeAreaInsets;
+
+            BOOL isSupportSafeZone = NO;
+            BOOL isSupportTop = [[safezoneDict objectForKey:@"Top"] boolValue];
+            BOOL isSupportBottom = [[safezoneDict objectForKey:@"Bottom"] boolValue];
+            BOOL isSupportLeft = [[safezoneDict objectForKey:@"Left"] boolValue];
+            BOOL isSupportRight = [[safezoneDict objectForKey:@"Right"] boolValue];
+
+            CGRect _frame = data.uiwindow.frame;
+            if(isSupportTop && zone.top > 0)
+            {
+                _frame.origin.y = zone.top;
+                _frame.size.height -= zone.top;
+
+                isSupportSafeZone = YES;
+            }
+            if(isSupportBottom && zone.bottom > 0)
+            {
+                _frame.size.height -= zone.bottom;
+                isSupportSafeZone = YES;
+            }
+            if(isSupportLeft && zone.left > 0)
+            {
+                _frame.origin.x = zone.left;
+                _frame.size.width -= zone.left;
+                isSupportSafeZone = YES;
+            }
+            if(isSupportRight && zone.right > 0)
+            {
+                _frame.origin.x = zone.left;
+                _frame.size.width -= zone.right;
+                isSupportSafeZone = YES;
+            }
+            data.uiwindow.frame = _frame;
+        }
+    }
+// [/IGE]: safe-zone
+
     viewcontroller.view.frame = UIKit_ComputeViewFrame(window, data.uiwindow.screen);
 #endif /* !TARGET_OS_TV */
 

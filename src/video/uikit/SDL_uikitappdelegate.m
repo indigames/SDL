@@ -34,6 +34,10 @@
 
 #include "../../events/SDL_events_c.h"
 
+// [IGE]: notification callback
+#import <UserNotifications/UserNotifications.h>
+// [/IGE]
+
 #ifdef main
 #undef main
 #endif
@@ -42,6 +46,22 @@ static SDL_main_func forward_main;
 static int forward_argc;
 static char **forward_argv;
 static int exit_status;
+
+// [IGE]: notification callback
+static SDLUIKitDelegate *uiKitDelegate;
+static NSString* LOCAL_NOTIFICATION_INTENT= @"message_id";
+static NSString* FIREBASE_NOTIFICATION_INTENT= @"gcm.message_id";
+static NSString* NOTIFICATION_RESUME= @"pn_resume";
+static NSString* NOTIFICATION_LAUNCH= @"pn_launch";
+static NSString* LOCAL_NOTIFICATION= @"local";
+static NSString* FIREBASE_NOTIFICATION= @"firebase_cloud";
+
+extern void DelegateNotifyCallback(const char* name, const char* type, const char* id);
+id sdlUIKitDelegate()
+{
+    return uiKitDelegate;
+}
+// [/IGE]
 
 #if defined(SDL_MAIN_NEEDED) && !defined(IOS_DYLIB)
 /* SDL is being built as a static library, include main() */
@@ -308,6 +328,12 @@ SDL_LoadLaunchImageNamed(NSString *name, int screenh)
 
 @end
 
+// [IGE]: notification callback
+@interface SDLUIKitDelegate() <UNUserNotificationCenterDelegate>
+
+@end
+// [/IGE]
+
 @implementation SDLUIKitDelegate {
     UIWindow *launchWindow;
 }
@@ -319,6 +345,13 @@ SDL_LoadLaunchImageNamed(NSString *name, int screenh)
      * called before this method */
     return [UIApplication sharedApplication].delegate;
 }
+
+// [IGE]: notification callback
++ (id)sdlUIKitDelegate
+{
+    return self;
+}
+// [/IGE]
 
 + (NSString *)getAppDelegateClassName
 {
@@ -372,6 +405,11 @@ SDL_LoadLaunchImageNamed(NSString *name, int screenh)
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     NSBundle *bundle = [NSBundle mainBundle];
+
+// [IGE]: notification callback
+    uiKitDelegate = self;
+    [self registerPush];
+// [/IGE]
 
 #if SDL_IPHONE_LAUNCHSCREEN
     /* The normal launch screen is displayed until didFinishLaunching returns,
@@ -432,6 +470,20 @@ SDL_LoadLaunchImageNamed(NSString *name, int screenh)
 
     return YES;
 }
+
+// [IGE]: notification callback
+- (void)registerPush {
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    center.delegate = self;
+    [center requestAuthorizationWithOptions:(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge) completionHandler:^(BOOL granted, NSError * _Nullable error){
+        if( !error ){
+            dispatch_async(dispatch_get_main_queue(), ^{
+             [[UIApplication sharedApplication] registerForRemoteNotifications];
+          });
+        }
+    }];
+}
+// [/IGE]
 
 - (UIWindow *)window
 {
@@ -519,6 +571,52 @@ SDL_LoadLaunchImageNamed(NSString *name, int screenh)
 }
 
 #endif
+
+// [IGE]: notification callback
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+       willPresentNotification:(UNNotification *)notification
+         withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler {
+
+    /**
+     If your app is in the foreground when a notification arrives, the notification center calls this method to deliver the notification directly to your app. If you implement this method, you can take whatever actions are necessary to process the notification and update your app. When you finish, execute the completionHandler block and specify how you want the system to alert the user, if at all.
+
+     If your delegate does not implement this method, the system silences alerts as if you had passed the UNNotificationPresentationOptionNone option to the completionHandler block. If you do not provide a delegate at all for the UNUserNotificationCenter object, the system uses the notification’s original options to alert the user.
+     see https://developer.apple.com/reference/usernotifications/unusernotificationcenterdelegate/1649518-usernotificationcenter?language=objc
+
+     **/
+
+    NSLog(@"APPDELEGATE: willPresentNotification %@", notification.request.content.userInfo);
+    completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+
+    /**
+     Use this method to perform the tasks associated with your app’s custom actions. When the user responds to a notification, the system calls this method with the results. You use this method to perform the task associated with that action, if at all. At the end of your implementation, you must call the completionHandler block to let the system know that you are done processing the notification.
+
+     You specify your app’s notification types and custom actions using UNNotificationCategory and UNNotificationAction objects. You create these objects at initialization time and register them with the user notification center. Even if you register custom actions, the action in the response parameter might indicate that the user dismissed the notification without performing any of your actions.
+
+     If you do not implement this method, your app never responds to custom actions.
+
+     see https://developer.apple.com/reference/usernotifications/unusernotificationcenterdelegate/1649501-usernotificationcenter?language=objc
+
+     **/
+
+    NSLog(@"APPDELEGATE: didReceiveNotificationResponse: withCompletionHandler %@", response.notification.request.content.userInfo);
+
+    NSDictionary* userInfo = response.notification.request.content.userInfo;
+    if ([userInfo objectForKey:FIREBASE_NOTIFICATION_INTENT]) {
+        DelegateNotifyCallback([NOTIFICATION_LAUNCH UTF8String], [FIREBASE_NOTIFICATION UTF8String], [(NSString*)userInfo[FIREBASE_NOTIFICATION_INTENT] UTF8String]);
+    }
+    else if ([userInfo objectForKey:LOCAL_NOTIFICATION_INTENT]) {
+        NSLog(@"APPDELEGATE: didReceiveRemoteNotification:1 %@", (NSString*)userInfo[LOCAL_NOTIFICATION_INTENT]);
+        NSNumber* _id = (NSNumber*)userInfo[LOCAL_NOTIFICATION_INTENT];
+        NSLog(@"APPDELEGATE: didReceiveRemoteNotification:2 %s", [_id.stringValue UTF8String]);
+        DelegateNotifyCallback([NOTIFICATION_LAUNCH UTF8String], [LOCAL_NOTIFICATION UTF8String], [_id.stringValue UTF8String]);
+    }
+    completionHandler();
+}
+// [/IGE]
 
 @end
 
