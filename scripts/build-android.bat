@@ -15,7 +15,6 @@ SET OUTPUT_LIBS_RELEASE=%OUTPUT_DIR%\libs\android
 
 SET CALL_DIR=%CD%
 
-rem Clone igeLibs, then set environment variable *IGE_LIBS* point to the cloned directory
 if not exist "%PROJECT_DIR%\igeLibs" (
     mklink /J "%PROJECT_DIR%\igeLibs" "%IGE_LIBS%"
 )
@@ -43,19 +42,16 @@ if not exist "%ANDROID_NDK_ROOT%" (
     if exist "%ANDROID_SDK_ROOT%\ndk-bundle" (
         set ANDROID_NDK_ROOT=%ANDROID_SDK_ROOT%\ndk-bundle
     ) else (
-        if exist "%ANDROID_SDK_ROOT%\ndk\20.1.5948944" (
-            set ANDROID_NDK_ROOT=%ANDROID_SDK_ROOT%\ndk\20.1.5948944
-        ) else  (
-            if exist "%ANDROID_SDK_ROOT%\ndk\21.0.6113669" (
-                set ANDROID_NDK_ROOT=%ANDROID_SDK_ROOT%\ndk\21.0.6113669
-            ) else (
-                echo ERROR: NDK NOT FOUND!
-                goto ERROR
-            )
+        for /d %%D in (%ANDROID_SDK_ROOT%\ndk\*) do (
+            set ANDROID_NDK_ROOT=%%~fD
         )
     )
 )
 
+if not exist "%ANDROID_NDK_ROOT%" (
+    echo ERROR: NDK NOT FOUND!
+    goto ERROR
+)
 echo NDK: !ANDROID_NDK_ROOT!
 
 set ANDROID_TOOLCHAIN=!ANDROID_NDK_ROOT!\build\cmake\android.toolchain.cmake
@@ -212,7 +208,7 @@ echo Compiling x86_64 DONE
 goto ALL_DONE
 
 :ERROR
-    echo ERROR OCCURED DURING COMPILING
+    echo ERROR OCCURED DURING COMPILING!
 
 :ALL_DONE
     cd %CALL_DIR%
