@@ -3,6 +3,9 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif()
 
 cmake_minimum_required(VERSION 2.8.11)
+
+file(TO_CMAKE_PATH $ENV{IGE_LIBS} IGE_LIBS)
+
 project(SDL2 C CXX)
 
 # [IGE]: tweaks for platforms
@@ -19,7 +22,7 @@ if(DEFINED ANDROID_PLATFORM)
         add_compile_options(-march=atom -m64 -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mfpmath=sse)
     endif()
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
-        add_compile_options(-Ofast)
+        add_compile_options(-g0 -Ofast)
     else(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_compile_options(-Og)
     endif()
