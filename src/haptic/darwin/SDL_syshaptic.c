@@ -1421,6 +1421,17 @@ SDL_SYS_HapticStopAll(SDL_Haptic * haptic)
     return 0;
 }
 
+// [IGE]: Add haptic
+/*
+ * Play the haptic.
+ */
+int
+SDL_SYS_HapticPlay(SDL_Haptic* haptic, HapticTypes type, long* pattern, int* amplitudes, int size, int repeat)
+{
+	return SDL_Unsupported();
+}
+// [/IGE]
+
 #endif /* SDL_HAPTIC_IOKIT */
 
 /* vi: set ts=4 sw=4 expandtab: */
