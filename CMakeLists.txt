@@ -194,7 +194,7 @@ endif()
 #  so we'll just use libusb when it's available. libusb does not support iOS,
 #  so we default to yes on iOS.
 #  TODO: Windows can support libusb, the hid.c file just depends on Unix APIs
-if(WINDOWS OR IOS OR TVOS OR ANDROID)
+if(WINDOWS OR ANDROID) # [IGE] Remove HIDAPI on IOS as it require CoreBluetooth framework
   set(HIDAPI_SKIP_LIBUSB TRUE)
 else()
   set(HIDAPI_SKIP_LIBUSB FALSE)
