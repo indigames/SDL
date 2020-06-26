@@ -860,9 +860,9 @@ SDL_HapticRumbleStop(SDL_Haptic * haptic)
 int
 SDL_HapticPlay(SDL_Haptic* haptic, HapticTypes type, long* pattern, int* amplitudes, int size, int repeat)
 {
-	if (!ValidHaptic(haptic)) {
-		return -1;
-	}
+//	if (!ValidHaptic(haptic)) {
+//		return -1;
+//	}
 
 	/* play the haptic */
 	if (SDL_SYS_HapticPlay(haptic, type, pattern, amplitudes, size, repeat)
