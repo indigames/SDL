@@ -27,6 +27,7 @@
 #include "SDL_hints.h"
 #include "SDL_system.h"
 #include "SDL_main.h"
+#include "SDL.h"
 
 #import "SDL_uikitappdelegate.h"
 #import "SDL_uikitmodes.h"
@@ -406,11 +407,6 @@ SDL_LoadLaunchImageNamed(NSString *name, int screenh)
 {
     NSBundle *bundle = [NSBundle mainBundle];
 
-// [IGE]: notification callback
-    uiKitDelegate = self;
-    [self registerPush];
-// [/IGE]
-
 #if SDL_IPHONE_LAUNCHSCREEN
     /* The normal launch screen is displayed until didFinishLaunching returns,
      * but SDL_main is called after that happens and there may be a noticeable
@@ -554,11 +550,27 @@ SDL_LoadLaunchImageNamed(NSString *name, int screenh)
 }
 
 #if TARGET_OS_TV || (defined(__IPHONE_9_0) && __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_9_0)
-
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
 {
     /* TODO: Handle options */
     [self sendDropFileForURL:url];
+
+    if ([url.scheme isEqualToString:(@"firebase-game-loop")]) {
+        NSLog(@"Running the firebase-game-loop %@", url.scheme);
+        uiKitDelegate = self;
+        SDL_SetGameLoopTest(true);
+    }
+    else
+    {
+    // [IGE]: notification callback
+        if(!SDL_IsGameLoopTest())
+        {
+            NSLog(@"registerPush %@", url.scheme);
+            uiKitDelegate = self;
+            [self registerPush];
+        }
+    // [/IGE]
+    }
     return YES;
 }
 

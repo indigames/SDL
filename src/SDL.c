@@ -52,6 +52,16 @@ extern int SDL_HelperWindowCreate(void);
 extern int SDL_HelperWindowDestroy(void);
 #endif
 
+static SDL_bool SDL_GameLoopTest = SDL_FALSE;
+void SDL_SetGameLoopTest(SDL_bool value)
+{
+    SDL_GameLoopTest = value;
+}
+
+SDL_bool SDL_IsGameLoopTest()
+{
+    return SDL_GameLoopTest;
+}
 
 /* This is not declared in any header, although it is shared between some
     parts of SDL, because we don't want anything calling it without an
