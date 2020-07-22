@@ -90,6 +90,8 @@ extern "C" {
             )
 /* @} */
 
+extern DECLSPEC void SDLCALL SDL_SetGameLoopTest(SDL_bool value);
+extern DECLSPEC SDL_bool SDLCALL SDL_IsGameLoopTest();
 /**
  *  This function initializes  the subsystems specified by \c flags
  */
