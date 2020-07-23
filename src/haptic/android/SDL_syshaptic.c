@@ -373,6 +373,7 @@ int
 SDL_SYS_HapticPlay(SDL_Haptic* haptic, HapticTypes type, long* pattern, int* amplitudes, int size, int repeat)
 {
     if(haptic == NULL)
+    {
         return 0;
     }
     Android_JNI_HapticPlay (((SDL_hapticlist_item *)haptic->hwdata)->device_id, pattern, amplitudes, size, repeat);
