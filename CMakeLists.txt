@@ -4,8 +4,6 @@
 
 cmake_minimum_required(VERSION 2.8.11)
 
-file(TO_CMAKE_PATH $ENV{IGE_LIBS} IGE_LIBS)
-
 project(SDL2 C CXX)
 
 # [IGE]: tweaks for platforms
